@@ -5,6 +5,7 @@ import {
   buildErrorResponse,
   caseCreateSchema,
   Errors,
+  supportedChains,
   walletAttestationSchema
 } from "@kadenatrace/shared";
 
@@ -23,7 +24,7 @@ async function kadenaLocalQuery(
     body: JSON.stringify(command)
   });
   if (!response.ok) {
-    throw new Error(`Kadena local query failed: HTTP ${response.status}`);
+    throw new Error(`Public ledger query failed: HTTP ${response.status}`);
   }
   const json = (await response.json()) as {
     result?: { status?: string; data?: unknown; error?: { message: string } }
@@ -57,7 +58,7 @@ const anchorSubmitSchema = z.object({
 
 const attestationDraftSchema = z.object({
   wallet: z.string().min(3),
-  chain: z.enum(["ethereum", "bsc", "kadena", "bitcoin"]),
+  chain: z.enum(supportedChains),
   riskLevel: z.enum(["low", "medium", "high", "critical"]),
   riskScore: z.number().min(0).max(100),
   note: z.string().max(500).optional()

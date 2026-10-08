@@ -1,7 +1,9 @@
 import { z } from "zod";
 
-export const supportedChains = ["ethereum", "bsc", "kadena", "bitcoin"] as const;
+export const supportedChains = ["ethereum", "bsc", "bitcoin", "solana", "xrpl", "kadena"] as const;
 export type Chain = (typeof supportedChains)[number];
+export const traceableChains = ["bitcoin", "ethereum", "bsc", "xrpl", "solana"] as const;
+export type TraceableChain = (typeof traceableChains)[number];
 
 export const nodeKinds = ["wallet", "contract", "bridge", "mixer", "exchange", "router", "multisig", "terminal"] as const;
 export type NodeKind = (typeof nodeKinds)[number];
@@ -438,6 +440,17 @@ export interface WalletAttestationInput {
   note?: string;
 }
 
+export function isValidTraceSeed(chain: TraceableChain, seedType: SeedType, seedValue: string): boolean {
+  const value = seedValue.trim();
+  if (seedType === "tx") return chain === "solana"
+    ? isBase58Value(value, 64)
+    : /^[A-Fa-f0-9]{64}$/.test(value.replace(/^0x/i, ""));
+  if (chain === "ethereum" || chain === "bsc") return /^0x[a-fA-F0-9]{40}$/.test(value);
+  if (chain === "bitcoin") return /^(bc1[ac-hj-np-z02-9]{11,71}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(value);
+  if (chain === "solana") return isBase58Value(value, 32);
+  return /^r[1-9A-HJ-NP-Za-km-z]{24,34}$/.test(value);
+}
+
 export const traceOptionsSchema = z.object({
   maxDepth: z.number().int().min(1).max(10).default(4),
   maxNodes: z.number().int().min(10).max(1000).default(250),
@@ -448,11 +461,34 @@ export const traceOptionsSchema = z.object({
 });
 
 export const traceRequestSchema = z.object({
-  chain: z.enum(supportedChains),
+  chain: z.enum(traceableChains),
   seedType: z.enum(seedTypes),
   seedValue: z.string().min(3),
   options: traceOptionsSchema.partial().optional()
+}).superRefine((request, context) => {
+  if (!isValidTraceSeed(request.chain, request.seedType, request.seedValue)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["seedValue"],
+      message: `Invalid ${request.seedType === "tx" ? "transaction identifier" : "address"} for ${request.chain}.`
+    });
+  }
 });
+
+function isBase58Value(value: string, expectedBytes: number): boolean {
+  if (!/^[1-9A-HJ-NP-Za-km-z]+$/.test(value)) return false;
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  let decoded = 0n;
+  for (const character of value) {
+    const digit = alphabet.indexOf(character);
+    if (digit < 0) return false;
+    decoded = decoded * 58n + BigInt(digit);
+  }
+  let byteLength = 0;
+  for (let current = decoded; current > 0n; current >>= 8n) byteLength += 1;
+  const leadingZeroes = value.match(/^1*/)?.[0].length ?? 0;
+  return byteLength + leadingZeroes === expectedBytes;
+}
 
 export const caseCreateSchema = z.object({
   traceId: z.string().min(3),

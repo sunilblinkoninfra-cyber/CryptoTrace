@@ -20,13 +20,17 @@ export class TraceService {
     ethereumRpcUrl?: string,
     bscRpcUrl?: string,
     bitcoinMempoolUrl?: string,
-    private readonly queue?: BullMqTraceQueue
+    private readonly queue?: BullMqTraceQueue,
+    solanaRpcUrl?: string,
+    xrplRpcUrl?: string
   ) {
     const provider = createDefaultActivityProvider({
       covalentApiKey,
       ethereumRpcUrl,
       bscRpcUrl,
-      mempoolBaseUrl: bitcoinMempoolUrl
+      mempoolBaseUrl: bitcoinMempoolUrl,
+      solanaRpcUrl,
+      xrplRpcUrl
     });
     this.engine = new TraceEngine(provider);
   }

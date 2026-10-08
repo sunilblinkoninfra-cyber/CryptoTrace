@@ -68,7 +68,7 @@ export function useKadenaWalletSession() {
       });
     })().catch((error: unknown) => {
       if (!cancelled) {
-        setWalletError(error instanceof Error ? error.message : "Unable to read the active Kadena wallet state.");
+        setWalletError(error instanceof Error ? error.message : "Unable to read the active wallet state.");
         setState({
           loading: false
         });
@@ -99,7 +99,7 @@ export function useKadenaWalletSession() {
       });
       setWalletError(null);
     } catch (error) {
-      setWalletError(error instanceof Error ? error.message : "Unable to watch the selected Kadena wallet.");
+      setWalletError(error instanceof Error ? error.message : "Unable to watch the selected wallet.");
     }
   }, [activeAdapterDetected, client, currentAdapterName, setState]);
 
@@ -119,7 +119,7 @@ export function useKadenaWalletSession() {
 
   async function connect() {
     if (!currentAdapterName || !activeAdapterDetected) {
-      setWalletError("Select a detected Kadena wallet first.");
+      setWalletError("Select a detected signing wallet first.");
       return;
     }
 
@@ -166,13 +166,13 @@ export function useKadenaWalletSession() {
 
   async function signTransaction(unsignedCommand: IUnsignedCommand): Promise<ICommand> {
     if (!currentAdapterName || !activeAdapterDetected) {
-      throw new Error("No Kadena wallet adapter is selected.");
+      throw new Error("No signing wallet adapter is selected.");
     }
 
     const signed = await client.signTransaction(currentAdapterName, unsignedCommand);
     const signedCommand = Array.isArray(signed) ? signed[0] : signed;
     if (!signedCommand || !isSignedTransaction(signedCommand)) {
-      throw new Error("The wallet did not return a fully signed Kadena command.");
+      throw new Error("The wallet did not return a fully signed command.");
     }
 
     return signedCommand;

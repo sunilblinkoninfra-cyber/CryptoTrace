@@ -11,6 +11,8 @@ export interface ApiConfig {
   ethereumRpcUrl?: string;
   bscRpcUrl?: string;
   bitcoinMempoolUrl?: string;
+  solanaRpcUrl?: string;
+  xrplRpcUrl?: string;
   kadenaNodeUrl?: string;
   kadenaChainwebBaseUrl: string;
   kadenaNetworkId: string;
@@ -28,13 +30,15 @@ export function loadConfig(): ApiConfig {
 
   return {
     port: Number(process.env.PORT ?? process.env.API_PORT ?? 4000),
-    webBaseUrl: process.env.WEB_BASE_URL ?? process.env.CORS_ORIGIN ?? "https://kadenatrace-frontend.vercel.app",
+    webBaseUrl: process.env.WEB_BASE_URL ?? process.env.CORS_ORIGIN ?? "https://cryptotrace.vercel.app",
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
     covalentApiKey: process.env.COVALENT_API_KEY,
     ethereumRpcUrl: process.env.ETHEREUM_RPC_URL,
     bscRpcUrl: process.env.BSC_RPC_URL,
     bitcoinMempoolUrl: process.env.BITCOIN_MEMPOOL_URL,
+    solanaRpcUrl: process.env.SOLANA_RPC_URL,
+    xrplRpcUrl: process.env.XRPL_RPC_URL,
     kadenaNodeUrl,
     kadenaChainwebBaseUrl: deriveChainwebBaseUrl(process.env.KADENA_CHAINWEB_BASE_URL ?? kadenaNodeUrl),
     kadenaNetworkId: process.env.KADENA_NETWORK_ID ?? "testnet04",

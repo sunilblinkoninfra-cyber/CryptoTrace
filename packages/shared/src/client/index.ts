@@ -8,6 +8,7 @@ export * from "../trace/crawler";
 export * from "../trace/explainable-risk";
 export * from "../trace/heuristics";
 export * from "../trace/mempool-provider";
+export * from "../trace/native-chain-providers";
 export * from "../trace/normalizer";
 export * from "../trace/provider";
 export * from "../trace/scoring";

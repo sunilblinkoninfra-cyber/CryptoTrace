@@ -6,7 +6,7 @@ import { PageShell } from "../../components/ui";
 import { DEMO_TRACE_ID, buildDemoTraceSpans } from "../../lib/trace-waterfall-demo";
 
 export const metadata: Metadata = {
-  title: "Trace Waterfall | KadenaTrace",
+  title: "Trace Waterfall | CryptoTrace",
   description: "A Jaeger-style observability waterfall built with deterministic span scaling."
 };
 

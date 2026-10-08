@@ -9,7 +9,7 @@ export function WalletConnectionCard() {
   return (
     <Card className="grid gap-5 p-5 bg-gradient-to-br from-white/95 to-slate-50/50 border-slate-200/60 rounded-2xl shadow-sm">
       <div className="flex flex-wrap items-center justify-between border-b border-slate-200/60 pb-3">
-        <span className="pill font-display text-[10px] uppercase tracking-wider">Kadena Wallet</span>
+        <span className="pill font-display text-[10px] uppercase tracking-wider">Signing Wallet</span>
         <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
           {wallet.targetNetworkId}
         </span>
@@ -79,7 +79,7 @@ export function WalletConnectionCard() {
         
         {!wallet.currentAdapterName && wallet.detectedAdapters.length === 0 ? (
           <p className="text-xs leading-relaxed text-slate-400 font-medium">
-            Install Ecko wallet or run Chainweaver Legacy locally to enable live Kadena transaction signing.
+            Connect a supported signing wallet to publish attestations and anchor investigation records.
           </p>
         ) : null}
       </div>

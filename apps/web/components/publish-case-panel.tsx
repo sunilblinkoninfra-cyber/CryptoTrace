@@ -74,7 +74,7 @@ export function PublishCasePanel({ trace }: { trace: TraceRecord }): ReactElemen
       return;
     }
     if (!wallet.signer) {
-      setStatus("Connect a Kadena wallet before anchoring the case.");
+      setStatus("Connect a compatible signing wallet before anchoring the case.");
       return;
     }
     if (wallet.networkMismatch) {
@@ -95,7 +95,7 @@ export function PublishCasePanel({ trace }: { trace: TraceRecord }): ReactElemen
       });
       const payload = (await payloadResponse.json()) as PreparedCaseAnchorPayload & { error?: string };
       if (!payloadResponse.ok || !payload.unsignedCommand) {
-        throw new Error(payload.error ?? "Unable to prepare the Kadena anchor.");
+        throw new Error(payload.error ?? "Unable to prepare the public ledger anchor.");
       }
 
       const signedCommand = await wallet.signTransaction(payload.unsignedCommand);
@@ -111,7 +111,7 @@ export function PublishCasePanel({ trace }: { trace: TraceRecord }): ReactElemen
       });
       const submitted = (await submitResponse.json()) as { requestKey?: string; status?: string; error?: string };
       if (!submitResponse.ok || !submitted.requestKey) {
-        throw new Error(submitted.error ?? "Unable to submit the Kadena anchor.");
+        throw new Error(submitted.error ?? "Unable to submit the public ledger anchor.");
       }
 
       setStatus(`Anchor ${submitted.status ?? "submitted"} with request key ${submitted.requestKey}.`);
@@ -130,7 +130,7 @@ export function PublishCasePanel({ trace }: { trace: TraceRecord }): ReactElemen
           Anchor Public Forensic Report
         </h2>
         <p className="mt-2 text-sm font-semibold text-slate-500 leading-relaxed max-w-2xl">
-          Publish an immutable, shareable forensic audit trail. Anchor a zero-knowledge snapshot key directly to Kadena for cryptographically verifiable disputes.
+          Publish an immutable, shareable forensic audit trail. Anchor a privacy-preserving snapshot key for independently verifiable disputes.
         </p>
       </div>
 
@@ -153,7 +153,7 @@ export function PublishCasePanel({ trace }: { trace: TraceRecord }): ReactElemen
                 <p className="text-xs font-semibold text-slate-500 leading-relaxed mt-1">
                   {wallet.signer
                     ? "Your active account key will sign this case's root hash anchor payload."
-                    : "Connect a Kadena wallet to anchor verification steps on the public ledger."}
+                    : "Connect a signing wallet to anchor verification steps on the public ledger."}
                 </p>
               </div>
             </Card>
@@ -245,7 +245,7 @@ export function PublishCasePanel({ trace }: { trace: TraceRecord }): ReactElemen
                   disabled={pending || !wallet.signer} 
                   onClick={anchorCase}
                 >
-                  Sign & Anchor on Kadena
+                  Sign & Anchor Investigation
                 </button>
               ) : null}
               {slug ? (
@@ -320,7 +320,7 @@ function defaultNarrative(findings: Finding[]): string {
   const signalList = findings.slice(0, 4).map((finding) => finding.code.replace(/-/g, " "));
   return `This investigation follows stolen funds from the seed transaction into a branching laundering flow. Key signals observed: ${signalList.join(
     ", "
-  ) || "risk scoring is still pending"}.\n\nThe trace snapshot is intended for public verification and can be anchored on Kadena without exposing private victim details.`;
+  ) || "risk scoring is still pending"}.\n\nThe trace snapshot is intended for public verification and can be anchored without exposing private victim details.`;
 }
 
 function resolveUrgencyCardClassName(toneClass: string): string {

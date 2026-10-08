@@ -118,7 +118,7 @@ export default async function TracePage({ params }: { params: Promise<{ traceId:
       <TraceOverview
         trace={trace.result}
         traceId={trace.id}
-        exportBaseName={`kadenatrace-${traceId}`}
+        exportBaseName={`cryptotrace-${traceId}`}
         graphTitle="Branching flow and suspicious path highlights"
         graphSubtitle="Use the filters, suspicious-path focus, and top-risk-wallet shortcut to inspect the laundering branches."
         isDemo={isDemo}
@@ -178,6 +178,18 @@ function getExplorerHref(
     return seedType === "tx"
       ? `https://mempool.space/tx/${value}`
       : `https://mempool.space/address/${value}`;
+  }
+
+  if (chain === "solana") {
+    return seedType === "tx"
+      ? `https://explorer.solana.com/tx/${value}`
+      : `https://explorer.solana.com/address/${value}`;
+  }
+
+  if (chain === "xrpl") {
+    return seedType === "tx"
+      ? `https://livenet.xrpl.org/transactions/${value}`
+      : `https://livenet.xrpl.org/accounts/${value}`;
   }
 
   return null;

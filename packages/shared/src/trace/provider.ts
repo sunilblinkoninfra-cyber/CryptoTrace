@@ -9,6 +9,7 @@ import { FIXTURE_BRIDGE_RESOLUTIONS, FIXTURE_TRANSFERS } from "../fixtures/sampl
 import { normalizeAddress } from "./normalizer.js";
 import { MempoolSpaceProvider } from "./mempool-provider.js";
 import { KadenaChainwebProvider } from "./kadena-provider.js";
+import { SolanaRpcProvider, XrplRpcProvider } from "./native-chain-providers.js";
 
 export class FixtureActivityProvider implements ActivityProvider {
   name = "fixture-provider";
@@ -68,6 +69,8 @@ interface DefaultProviderOptions {
   bscRpcUrl?: string;
   mempoolBaseUrl?: string;
   kadenaGraphUrl?: string;
+  solanaRpcUrl?: string;
+  xrplRpcUrl?: string;
 }
 
 export class CovalentGoldRushProvider implements ActivityProvider {
@@ -246,11 +249,11 @@ export class EvmRpcActivityProvider implements ActivityProvider {
     this.ethereumRpcUrl =
       options.ethereumRpcUrl ??
       process.env.ETHEREUM_RPC_URL ??
-      "https://cloudflare-eth.com";
+      "https://ethereum-rpc.publicnode.com";
     this.bscRpcUrl =
       options.bscRpcUrl ??
       process.env.BSC_RPC_URL ??
-      "https://rpc.ankr.com/bsc";
+      "https://bsc-rpc.publicnode.com";
   }
 
   private getRpcUrl(chain: string): string | null {
@@ -335,6 +338,7 @@ export class EvmRpcActivityProvider implements ActivityProvider {
       [{
         fromBlock,
         toBlock,
+        address: getUsdtAddress(query.chain),
         topics: [
           TRANSFER_TOPIC,
           null,
@@ -349,6 +353,7 @@ export class EvmRpcActivityProvider implements ActivityProvider {
       [{
         fromBlock,
         toBlock,
+        address: getUsdtAddress(query.chain),
         topics: [
           TRANSFER_TOPIC,
           "0x" + address.slice(2).padStart(64, "0"),
@@ -379,8 +384,10 @@ export class EvmRpcActivityProvider implements ActivityProvider {
         continue;
       }
 
+      const token = getUsdtToken(query.chain, log.address);
+      if (!token) continue;
       const rawAmount = log.data === "0x" ? "0" : log.data;
-      const amount = Number(BigInt(rawAmount)) / 1e18;
+      const amount = Number(BigInt(rawAmount)) / 10 ** token.decimals;
       if (amount === 0) continue;
 
       const blockNumber = log.blockNumber ?? "0x0";
@@ -393,7 +400,7 @@ export class EvmRpcActivityProvider implements ActivityProvider {
         from,
         to,
         amount,
-        asset: "TOKEN",
+        asset: "USDT",
         timestamp,
         transferType: "token",
         source: "evm-rpc",
@@ -429,8 +436,7 @@ export class EvmRpcActivityProvider implements ActivityProvider {
     const blockNumber = receipt?.blockNumber ?? "0x0";
     const timestamp = await this.getBlockTimestamp(rpcUrl, blockNumber);
 
-    return [
-      {
+    const nativeTransfer: NormalizedTransfer | null = amount > 0 ? {
         id: `${query.chain}:${query.txHash}:0`,
         chain: query.chain,
         txHash: query.txHash,
@@ -442,8 +448,32 @@ export class EvmRpcActivityProvider implements ActivityProvider {
         transferType: "native",
         source: "evm-rpc",
         sourceUrl: rpcUrl
-      }
-    ];
+      } : null;
+    const tokenTransfers = (receipt?.logs ?? [])
+      .filter(isErc20TransferLog)
+      .flatMap((log) => {
+        const token = getUsdtToken(query.chain, log.address);
+        const from = topicToAddress(log.topics[1]);
+        const to = topicToAddress(log.topics[2]);
+        if (!token || !from || !to) return [];
+        const tokenAmount = Number(BigInt(log.data === "0x" ? "0" : log.data)) / 10 ** token.decimals;
+        if (!tokenAmount) return [];
+        return [{
+          id: `${query.chain}:${query.txHash}:usdt:${log.logIndex ?? "0"}`,
+          chain: query.chain,
+          txHash: query.txHash,
+          from,
+          to,
+          amount: tokenAmount,
+          asset: "USDT",
+          timestamp,
+          transferType: "token" as const,
+          source: "evm-rpc",
+          sourceUrl: rpcUrl
+        }];
+      });
+
+    return [...(nativeTransfer ? [nativeTransfer] : []), ...tokenTransfers];
   }
 
   async getBridgeResolution(
@@ -460,20 +490,41 @@ export function createDefaultActivityProvider(options: DefaultProviderOptions = 
     ethereumRpcUrl: options.ethereumRpcUrl,
     bscRpcUrl: options.bscRpcUrl
   });
-  const mempoolBaseUrl = options.mempoolBaseUrl ?? process.env.BITCOIN_MEMPOOL_URL;
-  const mempoolProvider = mempoolBaseUrl ? new MempoolSpaceProvider({ baseUrl: mempoolBaseUrl }) : undefined;
-  const bitcoinProviders = mempoolProvider ? [mempoolProvider, fixtureProvider] : [fixtureProvider];
+  const mempoolProvider = new MempoolSpaceProvider({
+    baseUrl: options.mempoolBaseUrl ?? process.env.BITCOIN_MEMPOOL_URL
+  });
   const kadenaProvider = new KadenaChainwebProvider({ graphUrl: options.kadenaGraphUrl ?? process.env.KADENA_GRAPH_URL });
+  const solanaProvider = new SolanaRpcProvider(options.solanaRpcUrl);
+  const xrplProvider = new XrplRpcProvider(options.xrplRpcUrl);
 
   return new RoutedActivityProvider(
     {
       ethereum: [evmRpcProvider, covalentProvider, fixtureProvider],
       bsc: [evmRpcProvider, covalentProvider, fixtureProvider],
-      bitcoin: bitcoinProviders,
+      bitcoin: [mempoolProvider, fixtureProvider],
+      solana: [solanaProvider, fixtureProvider],
+      xrpl: [xrplProvider, fixtureProvider],
       kadena: [kadenaProvider, fixtureProvider]
     },
-    [evmRpcProvider, covalentProvider, fixtureProvider, ...(mempoolProvider ? [mempoolProvider] : []), kadenaProvider]
+    [evmRpcProvider, covalentProvider, fixtureProvider, mempoolProvider, solanaProvider, xrplProvider, kadenaProvider]
   );
+}
+
+function getUsdtToken(chain: string, address: string): { decimals: number } | null {
+  const normalized = address.toLowerCase();
+  if (chain === "ethereum" && normalized === "0xdac17f958d2ee523a2206206994597c13d831ec7") {
+    return { decimals: 6 };
+  }
+  if (chain === "bsc" && normalized === "0x55d398326f99059ff775485246999027b3197955") {
+    return { decimals: 18 };
+  }
+  return null;
+}
+
+function getUsdtAddress(chain: string): string | null {
+  if (chain === "ethereum") return "0xdAC17F958D2ee523a2206206994597C13D831ec7";
+  if (chain === "bsc") return "0x55d398326f99059fF775485246999027B3197955";
+  return null;
 }
 
 interface EvmTransaction {

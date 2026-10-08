@@ -39,12 +39,12 @@ export function TraceGraphPanel(props: TraceGraphPanelProps): ReactElement {
       findings: props.findings,
       metrics: props.metrics
     });
-    downloadBlob(`${props.exportBaseName ?? "kadenatrace-graph"}.json`, content, "application/json");
+    downloadBlob(`${props.exportBaseName ?? "cryptotrace-graph"}.json`, content, "application/json");
   };
 
   const downloadCsv = (): void => {
-    downloadBlob(`${props.exportBaseName ?? "kadenatrace-graph"}-nodes.csv`, serializeNodesCsv(props.graph.nodes), "text/csv");
-    downloadBlob(`${props.exportBaseName ?? "kadenatrace-graph"}-edges.csv`, serializeEdgesCsv(props.graph.edges), "text/csv");
+    downloadBlob(`${props.exportBaseName ?? "cryptotrace-graph"}-nodes.csv`, serializeNodesCsv(props.graph.nodes), "text/csv");
+    downloadBlob(`${props.exportBaseName ?? "cryptotrace-graph"}-edges.csv`, serializeEdgesCsv(props.graph.edges), "text/csv");
   };
 
   const downloadPng = (): void => {
@@ -55,7 +55,7 @@ export function TraceGraphPanel(props: TraceGraphPanelProps): ReactElement {
       const url = URL.createObjectURL(png);
       const anchor = document.createElement("a");
       anchor.href = url;
-      anchor.download = `${props.exportBaseName ?? "kadenatrace-graph"}.png`;
+      anchor.download = `${props.exportBaseName ?? "cryptotrace-graph"}.png`;
       anchor.click();
       URL.revokeObjectURL(url);
     }

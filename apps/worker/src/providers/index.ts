@@ -7,6 +7,8 @@ export function createWorkerProvider(): ActivityProvider {
     ethereumRpcUrl: process.env.ETHEREUM_RPC_URL,
     bscRpcUrl: process.env.BSC_RPC_URL,
     mempoolBaseUrl: process.env.BITCOIN_MEMPOOL_URL,
-    kadenaGraphUrl: process.env.KADENA_GRAPH_URL
+    kadenaGraphUrl: process.env.KADENA_GRAPH_URL,
+    solanaRpcUrl: process.env.SOLANA_RPC_URL,
+    xrplRpcUrl: process.env.XRPL_RPC_URL
   });
 }

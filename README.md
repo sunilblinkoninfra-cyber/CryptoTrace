@@ -1,15 +1,15 @@
-# KadenaTrace
+# CryptoTrace
 
-KadenaTrace is a hybrid fraud and scam tracing MVP that combines off-chain transaction indexing and graph analysis with Kadena Pact contracts for immutable case anchoring, timestamps, public attestations, and dispute review flows.
+CryptoTrace is a multi-network investigation platform for Bitcoin, Ethereum, BNB Chain, XRP Ledger, and Solana. It combines off-chain transaction indexing and graph analysis with explainable risk signals, report exports, and optional case anchoring.
 
 ## Why It Matters
 
-KadenaTrace enables trustless fraud investigations where results can be independently verified, not just trusted.
+CryptoTrace makes investigations easier to reproduce by preserving evidence references, deterministic trace hashes, and clear provider coverage limits.
 
 ## What ships in this MVP
 
 - `apps/web`: Next.js dashboard for search, trace review, export, and public case pages
-- `apps/api`: Fastify API for traces, cases, Kadena relay flows, rate-limited public reads, and Pact-backed queries
+- `apps/api`: Fastify API for traces, cases, optional ledger anchoring, rate-limited public reads, and case queries
 - `apps/worker`: BullMQ worker for async trace jobs plus a worker health endpoint
 - `packages/shared`: shared domain model, trace engine, heuristics, provider adapters, fixtures, and tests
 - `packages/pact`: Pact contracts, payload builders, deployment helpers, and REPL tests
@@ -64,36 +64,36 @@ All transactions should report success. The test file covers:
 - mempool.space: Bitcoin address and transaction tracing via the public REST API, with no API key required
 - Fixture fallback: deterministic demo transfers, bridge resolutions, and labeled entities that keep the full MVP usable without any live credentials
 
-The default provider stack is route-aware: Ethereum and BSC use GoldRush, JSON-RPC, then fixtures; Bitcoin uses mempool.space, then fixtures.
+The default provider stack is route-aware: Ethereum and BNB Chain use JSON-RPC for recent USDT transfers and optional GoldRush for indexed history; Bitcoin uses mempool.space; XRP and Solana use native public RPCs. Public endpoints are best-effort and do not guarantee archival history.
 
 ## Enabling live chain data
 
-KadenaTrace works fully with fixture data out of the box. To trace
-real wallets, configure these values in `.env`:
+CryptoTrace works with fixture data out of the box. To trace real wallets, configure these values in `.env`:
 
-**Ethereum and BSC** — sign up for a free key at
+**Ethereum and BNB Chain** — sign up for an indexed history key at
 [goldrush.dev](https://goldrush.dev), then set:
 `COVALENT_API_KEY=your_key`
+
+USDT tracing is supported as an ERC-20 token on Ethereum and a BEP-20 token on BNB Chain. It is not a separate network.
 
 **Bitcoin** — no key required. The public mempool.space API is used
 automatically when chain = bitcoin. To use a self-hosted node:
 `BITCOIN_MEMPOOL_URL=http://your-node:8999`
 
-**Kadena** — no key required. The public Kadena Graph API is used
-automatically when chain = kadena. Default is already set:
-`KADENA_GRAPH_URL=https://graph.kadena.network/graphql`
+**XRP Ledger and Solana** — public RPCs are configured by default. Set `XRPL_RPC_URL` and `SOLANA_RPC_URL` to dedicated endpoints for production; shared endpoints may rate-limit and return bounded history.
 
 **Example addresses to try with live data:**
 - Ethereum: any address from etherscan.io
 - Bitcoin: any address from mempool.space
-- Kadena: `k:your-public-key` on explorer.chainweb.com
+- XRP Ledger: an `r...` account address
+- Solana: a base58 public key
 
-## Live Kadena signing
+## Case signing and anchoring
 
 - Install the Ecko browser extension or run Chainweaver Legacy locally.
-- Keep the wallet on `testnet04`.
-- Create a public case from a trace, then use `Sign & Relay on Kadena`.
-- The browser wallet signs the Pact command locally and the API relays the signed transaction to Kadena testnet.
+- Keep the signing wallet on the configured network.
+- Create a public case from a trace, then sign the case anchor.
+- The browser wallet signs the command locally and the API relays the signed transaction to the configured ledger.
 - Public wallet attestations on case pages use the same wallet-sign plus relay flow.
 - Pact writes enforce both the `kadenatrace.reporters` keyset and the submitted signer guard on-chain.
 
@@ -104,13 +104,11 @@ automatically when chain = kadena. Default is already set:
   - `ethereum / 0x1111111111111111111111111111111111111111`
 - Search for the Nomad-inspired demo compromised wallet:
   - `ethereum / 0x9000000000000000000000000000000000000000`
-- Kadena wallet (requires KADENA_GRAPH_URL configured):
-  - `kadena / k:your-kadena-account`
 - Search for the initial compromise tx:
   - `ethereum / 0x1000000000000000000000000000000000000000000000000000000000000001`
 - Review the graph, suspicious path panel, summary cards, and export actions
 - Create a public case from the trace
-- Optionally anchor it through the Kadena relay endpoint
+- Optionally anchor it through the case relay endpoint
 
 ## Real-World Example
 
@@ -123,7 +121,7 @@ This case demonstrates a realistic phishing flow:
 - the highest-value branch hits a bridge and exits into a BSC exchange deposit wallet
 - secondary branches move into a mixer, a burn address, and a DEX liquidity pool
 
-The example includes the graph nodes, graph edges, explainable risk analysis, and the deterministic `traceHash`, so reviewers can see exactly how KadenaTrace represents a real investigation without needing live chain access.
+The example includes the graph nodes, graph edges, explainable risk analysis, and the deterministic `traceHash`, so reviewers can inspect an investigation without needing live chain access.
 
 ## Pact contract architecture
 
@@ -175,7 +173,7 @@ The REPL suite covers duplicate case rejection, reporter capability enforcement,
 
 ## Live Verification
 
-All traces generated by KadenaTrace can be independently verified using deterministic hashing and on-chain comparison.
+Trace hashes can be checked against stored investigations using deterministic hashing.
 
 Use:
 

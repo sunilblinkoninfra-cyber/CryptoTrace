@@ -24,23 +24,23 @@ export async function generateMetadata({
 
   if (!caseData) {
     return {
-      title: "Case not found | KadenaTrace",
-      description: "KadenaTrace public case"
+      title: "Case not found | CryptoTrace",
+      description: "CryptoTrace public investigation"
     };
   }
 
   return {
-    title: `${caseData.title} | KadenaTrace`,
+    title: `${caseData.title} | CryptoTrace`,
     description: caseData.summary,
     openGraph: {
-      title: `${caseData.title} | KadenaTrace`,
+      title: `${caseData.title} | CryptoTrace`,
       description: caseData.summary,
       type: "article",
-      url: `https://kadenatrace.app/case/${slug}`
+      url: `https://cryptotrace.vercel.app/case/${slug}`
     },
     twitter: {
       card: "summary",
-      title: `${caseData.title} | KadenaTrace`,
+      title: `${caseData.title} | CryptoTrace`,
       description: caseData.summary
     }
   };
@@ -70,7 +70,7 @@ export default async function PublicCasePage({ params }: { params: Promise<{ slu
     <PageShell>
       <div className={getVerificationBannerClassName(fraudCase.anchor?.status)}>
         {fraudCase.anchor?.status === "confirmed"
-          ? `✓ Anchored on Kadena Mainnet — Block ${fraudCase.anchor.blockHeight ?? "pending"} — Request Key: ${fraudCase.anchor.requestKey}`
+          ? `✓ Anchored on public ledger — Block ${fraudCase.anchor.blockHeight ?? "pending"} — Request Key: ${fraudCase.anchor.requestKey}`
           : fraudCase.anchor
             ? "⏳ Anchor transaction submitted, awaiting ledger validation confirmation..."
             : "⚠ Not yet anchored on-chain — anchor this case via the trace verification dashboard"}

@@ -25,7 +25,7 @@ export async function buildApp(config: ApiConfig = loadConfig()): Promise<Fastif
     genReqId: () => randomUUID()
   });
 
-  const allowedOrigin = process.env.WEB_URL || "https://kadenatrace-frontend.vercel.app";
+  const allowedOrigin = process.env.WEB_URL || "https://cryptotrace.vercel.app";
   console.log("CORS allowed origin:", allowedOrigin);
 
   await app.register(cors, {
@@ -87,14 +87,16 @@ export async function buildApp(config: ApiConfig = loadConfig()): Promise<Fastif
     config.ethereumRpcUrl,
     config.bscRpcUrl,
     config.bitcoinMempoolUrl,
-    queue
+    queue,
+    config.solanaRpcUrl,
+    config.xrplRpcUrl
   );
   const pactAnchorService = new PactAnchorService(config);
   const caseService = new CaseService(caseRepository, traceService, pactAnchorService, config.webBaseUrl);
 
   // Root endpoint with links
   app.get("/", async () => ({
-    name: "KadenaTrace API",
+    name: "CryptoTrace API",
     version: "1.0.0",
     status: "ok",
     documentation: {
@@ -107,7 +109,7 @@ export async function buildApp(config: ApiConfig = loadConfig()): Promise<Fastif
   // Health check endpoint
   app.get("/health", async () => ({
     status: "ok",
-    service: "kadenatrace-api",
+    service: "cryptotrace-api",
     env: process.env.NODE_ENV || "production"
   }));
 
@@ -165,7 +167,7 @@ export async function buildApp(config: ApiConfig = loadConfig()): Promise<Fastif
       <!DOCTYPE html>
       <html>
         <head>
-          <title>KadenaTrace API Documentation</title>
+          <title>CryptoTrace API Documentation</title>
           <meta charset="utf-8" />
           <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
         </head>

@@ -22,7 +22,7 @@ export const VerificationStrip = ({ traceHash }: Props) => {
   };
 
   const shortHash = `${traceHash.slice(0, 10)}…${traceHash.slice(-8)}`;
-  const cliCmd = `kadena verify ${traceHash}`;
+  const cliCmd = `npm run verify-trace -- ${traceHash}`;
 
   return (
     <section className="w-full border-b border-border bg-surface shadow-sm">
@@ -30,7 +30,7 @@ export const VerificationStrip = ({ traceHash }: Props) => {
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-verified-bg px-3 py-1 text-xs font-medium text-verified">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Verified on Kadena
+            Trace hash available
           </span>
 
           <button
@@ -48,7 +48,7 @@ export const VerificationStrip = ({ traceHash }: Props) => {
             )}
           </button>
 
-          <span className="hidden text-xs text-muted-foreground sm:inline">This trace has been cryptographically verified and can be independently reproduced.</span>
+          <span className="hidden text-xs text-muted-foreground sm:inline">The trace hash supports independent integrity checks against this report.</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

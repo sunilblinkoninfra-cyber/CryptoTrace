@@ -1,18 +1,23 @@
 import { fetchTrace, type TraceSubmissionResponse } from "./api";
 import { getDemoTraceRecord } from "./demo-trace";
+import type { TraceableChain } from "@kadenatrace/shared/client";
 
 // In-memory cache to prevent duplicate API calls for the same trace
 const traceCache = new Map<string, TraceSubmissionResponse>();
 
-export async function getTrace(input: string, seedType: "address" | "tx" = "address") {
-  const cacheKey = `${seedType}:${input}`;
+export async function getTrace(
+  input: string,
+  seedType: "address" | "tx" = "address",
+  chain: TraceableChain = "ethereum"
+) {
+  const cacheKey = `${chain}:${seedType}:${input}`;
   if (traceCache.has(cacheKey)) {
     return { data: traceCache.get(cacheKey)!, isDemo: false };
   }
 
   try {
     const payload = {
-      chain: "ethereum",
+      chain,
       seedType,
       seedValue: input.trim()
     };

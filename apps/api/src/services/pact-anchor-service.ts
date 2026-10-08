@@ -126,7 +126,7 @@ export class PactAnchorService {
         submittedAt: new Date().toISOString(),
         signerAccount: signer.accountName,
         signerPublicKey: signer.publicKey,
-        error: error instanceof Error ? error.message : "Unable to relay Kadena case anchor."
+        error: error instanceof Error ? error.message : "Unable to relay case anchor."
       };
     }
   }
@@ -355,7 +355,7 @@ function ensurePactSuccess(result: ICommandResult | IPreflightResult, fallbackMe
 }
 
 function stringifyError(error: unknown): string {
-  return error instanceof Error ? error.message : "Unknown Kadena relay error.";
+  return error instanceof Error ? error.message : "Unknown anchor relay error.";
 }
 
 async function withTimeout<T>(promise: Promise<T>, message: string, timeoutMs: number): Promise<T> {

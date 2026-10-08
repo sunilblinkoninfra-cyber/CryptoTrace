@@ -6,15 +6,14 @@ interface CLIModalProps {
   isOpen: boolean;
   onClose: () => void;
   traceHash: string;
-  seedValue: string;
 }
 
-export function CLIModal({ isOpen, onClose, traceHash, seedValue }: CLIModalProps): ReactElement | null {
+export function CLIModal({ isOpen, onClose, traceHash }: CLIModalProps): ReactElement | null {
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
 
-  const cliCommand = `npx kadenatrace verify --hash ${traceHash} --wallet ${seedValue}`;
+  const cliCommand = `npm run verify-trace -- ${traceHash}`;
 
   const handleCopy = async (): Promise<void> => {
     await navigator.clipboard.writeText(cliCommand);
@@ -59,7 +58,7 @@ export function CLIModal({ isOpen, onClose, traceHash, seedValue }: CLIModalProp
         </h2>
 
         <p className="muted" style={{ marginBottom: "24px", fontSize: "14px", lineHeight: 1.6 }}>
-          Run this command to independently verify the trace using the KadenaTrace CLI.
+          Run this command to independently verify the trace using the CryptoTrace CLI.
         </p>
 
         <div

@@ -159,9 +159,13 @@ export function formatChainLabel(chain: Chain | string): string {
     case "ethereum":
       return "Ethereum";
     case "bsc":
-      return "BSC";
+      return "BNB Chain";
     case "bitcoin":
       return "Bitcoin";
+    case "solana":
+      return "Solana";
+    case "xrpl":
+      return "XRP Ledger";
     case "kadena":
       return "Kadena";
     default:

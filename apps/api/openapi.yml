@@ -1,18 +1,18 @@
 openapi: 3.0.3
 info:
-  title: KadenaTrace API
+  title: CryptoTrace API
   description: |
-    Hybrid fraud and scam tracing API that combines off-chain transaction indexing with Kadena Pact contracts for immutable case anchoring.
+    Multi-network tracing API for Bitcoin, Ethereum, BNB Chain, XRP Ledger, and Solana, with optional case anchoring.
 
     ## Features
-    - Multi-chain tracing (Ethereum, BSC, Bitcoin, Kadena)
+    - Multi-chain tracing (Bitcoin, Ethereum, BNB Chain, XRP Ledger, Solana)
     - Graph-based fund flow analysis
     - Risk scoring with explainable signals
-    - Immutable case anchoring on Kadena blockchain
+    - Optional case anchoring and public attestations
     - Wallet attestations and dispute resolution
   version: 1.0.0
   contact:
-    name: KadenaTrace Team
+    name: CryptoTrace Team
 
 servers:
   - url: http://localhost:3001
@@ -22,7 +22,7 @@ tags:
   - name: Traces
     description: Fund flow tracing and graph analysis
   - name: Cases
-    description: Case management and Kadena anchoring
+    description: Case management and optional ledger anchoring
   - name: Attestations
     description: Wallet risk attestations
   - name: Disputes
@@ -174,7 +174,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [ethereum, bsc, kadena, bitcoin]
+            enum: [ethereum, bsc, kadena, bitcoin, solana, xrpl]
         - name: cursor
           in: query
           schema:
@@ -235,7 +235,7 @@ paths:
   /api/cases/{caseId}/anchor/submit:
     post:
       summary: Submit signed case anchor
-      description: Submit signed Pact transaction to Kadena chain
+      description: Submit a signed case anchor transaction
       tags:
         - Cases
       parameters:
@@ -563,7 +563,11 @@ components:
 
     Chain:
       type: string
-      enum: [ethereum, bsc, kadena, bitcoin]
+      enum: [ethereum, bsc, kadena, bitcoin, solana, xrpl]
+
+    TraceableChain:
+      type: string
+      enum: [bitcoin, ethereum, bsc, xrpl, solana]
 
     SeedType:
       type: string
@@ -577,7 +581,7 @@ components:
         - seedValue
       properties:
         chain:
-          $ref: '#/components/schemas/Chain'
+          $ref: '#/components/schemas/TraceableChain'
         seedType:
           $ref: '#/components/schemas/SeedType'
         seedValue:

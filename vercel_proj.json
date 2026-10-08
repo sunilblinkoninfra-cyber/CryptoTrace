@@ -1,5 +1,5 @@
 {
-  "name": "kadenatrace-frontend",
+  "name": "cryptotrace",
   "framework": "nextjs",
-  "rootDirectory": "apps/web"
+  "rootDirectory": "."
 }

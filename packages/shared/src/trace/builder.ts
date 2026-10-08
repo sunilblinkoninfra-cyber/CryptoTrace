@@ -58,6 +58,16 @@ export async function buildTraceGraph(provider: ActivityProvider, request: Trace
   const warnings: string[] = [];
   const sources = new Map<string, EvidenceRef>();
 
+  if (request.chain === "solana") {
+    warnings.push("Solana public RPC history is limited to the most recent 50 signatures per wallet and may be incomplete.");
+  } else if (request.chain === "xrpl") {
+    warnings.push("XRP Ledger history is paged up to 600 recent transactions per wallet; older activity may be omitted.");
+  } else if (request.chain === "bitcoin" && request.seedType === "address") {
+    warnings.push("Bitcoin address history is sourced from recent mempool API pages; this trace is not a complete archival index.");
+  } else if ((request.chain === "ethereum" || request.chain === "bsc") && request.seedType === "address" && !process.env.COVALENT_API_KEY) {
+    warnings.push("Without an indexed EVM history provider, address traces include recognized USDT transfers from recent RPC logs only; native address history may be incomplete.");
+  }
+
   const frontier: FrontierItem[] = [];
   const visited = new Map<string, { minDepth: number; earliestAfter?: string }>();
 

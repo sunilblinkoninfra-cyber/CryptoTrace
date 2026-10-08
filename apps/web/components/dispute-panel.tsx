@@ -179,7 +179,7 @@ export function DisputePanel({ caseId, caseSlug }: DisputePanelProps): ReactElem
                 type="button"
                 onClick={() => void handleSign()}
               >
-                Sign & relay dispute on Kadena
+                Sign & submit dispute
               </button>
             ) : (
               <button

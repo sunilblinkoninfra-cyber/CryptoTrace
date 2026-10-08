@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { v5 as uuidv5 } from "uuid";
 import { getTrace } from "./get-trace";
 import { adaptTraceData, type AdaptedTraceData } from "./adapter";
+import type { TraceableChain } from "@kadenatrace/shared/client";
 
 const NAMESPACE = "1b671a64-40d5-491e-99b0-da01ff1f3341";
 
@@ -13,7 +14,7 @@ interface TraceState {
   activeFilters: string | null; // e.g. finding code
   
   // Actions
-  fetchAndSetTrace: (input: string, seedType: "address" | "tx") => Promise<string>;
+  fetchAndSetTrace: (input: string, seedType: "address" | "tx", chain: TraceableChain) => Promise<string>;
   setSelectedNodeId: (id: string | null) => void;
   setActiveFilters: (filter: string | null) => void;
   reset: () => void;
@@ -26,7 +27,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
   selectedNodeId: null,
   activeFilters: null,
 
-  fetchAndSetTrace: async (input: string, seedType: "address" | "tx") => {
+  fetchAndSetTrace: async (input: string, seedType: "address" | "tx", chain: TraceableChain) => {
     // Prevent duplicate API calls
     if (get().isLoading) {
       throw new Error("Trace is already loading");
@@ -35,7 +36,7 @@ export const useTraceStore = create<TraceState>((set, get) => ({
     set({ isLoading: true, selectedNodeId: null, activeFilters: null });
     
     try {
-      const { data, isDemo } = await getTrace(input, seedType);
+      const { data, isDemo } = await getTrace(input, seedType, chain);
       const adapted = adaptTraceData(data);
       
       // Deterministic traceId if missing or demo

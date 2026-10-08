@@ -8,16 +8,29 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import { buttonStyles } from "./ui";
 import { useTraceStore } from "../lib/store";
+import { isValidTraceSeed, traceableChains, type TraceableChain } from "@kadenatrace/shared/client";
 
 const ETH_DEMO_WALLET = "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045";
-const ETH_DEMO_TX = "0xa9d5d7a91d3e3d3e3d3e3d3e3d3e3d3e3d3e3d3e3d3e3d3e3d3e3d";
+const SAMPLE_TXS: Record<TraceableChain, string> = {
+  bitcoin: "a".repeat(64),
+  ethereum: `0x${"a".repeat(64)}`,
+  bsc: `0x${"a".repeat(64)}`,
+  xrpl: "a".repeat(64),
+  solana: "1".repeat(64)
+};
 
-const ADDRESS_PATTERN = /^0x[a-fA-F0-9]{40}$/;
-const TX_PATTERN = /^0x[a-fA-F0-9]{64}$/;
+const SAMPLE_WALLETS: Record<TraceableChain, string> = {
+  bitcoin: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa",
+  ethereum: ETH_DEMO_WALLET,
+  bsc: ETH_DEMO_WALLET,
+  xrpl: "rDsbeomae4FXwgQTJp9Rs64Qg9vDiTCdBv",
+  solana: ""
+};
 
 export function SearchForm(): ReactElement {
   const router = useRouter();
   const [seedType, setSeedType] = useState<"address" | "tx">("address");
+  const [chain, setChain] = useState<TraceableChain>("ethereum");
   const [seedValue, setSeedValue] = useState(ETH_DEMO_WALLET);
   const [error, setError] = useState<string | null>(null);
   const { fetchAndSetTrace, isLoading } = useTraceStore();
@@ -29,22 +42,19 @@ export function SearchForm(): ReactElement {
     setError(null);
 
     const normalizedInput = seedValue.trim();
-    const isValidInput =
-      seedType === "address"
-        ? ADDRESS_PATTERN.test(normalizedInput)
-        : TX_PATTERN.test(normalizedInput);
+    const isValidInput = isValidTraceSeed(chain, seedType, normalizedInput);
 
     if (!isValidInput) {
       setError(
         seedType === "address"
-          ? "Enter a valid wallet address. You can also use the demo case to explore the workflow instantly."
-          : "Enter a valid transaction ID. You can also use the demo case to explore the workflow instantly."
+          ? `Enter a valid ${chain} address. You can also use the demo case to explore the workflow instantly.`
+          : `Enter a valid ${chain} transaction ID. You can also use the demo case to explore the workflow instantly.`
       );
       return;
     }
 
     try {
-      const traceId = await fetchAndSetTrace(normalizedInput, seedType);
+      const traceId = await fetchAndSetTrace(normalizedInput, seedType, chain);
       router.push(`/trace/${traceId}`);
     } catch (err) {
       if (err instanceof Error && err.message === "Trace is already loading") return;
@@ -62,13 +72,34 @@ export function SearchForm(): ReactElement {
       className="mx-auto w-full max-w-3xl rounded-2xl border border-white/50 bg-white/70 p-5 shadow-glow backdrop-blur-md"
     >
       <form onSubmit={(e) => void handleSubmit(e)} className="flex flex-col gap-5">
+        <label className="grid max-w-xs gap-2 text-left">
+          <span className="text-xs font-extrabold tracking-wider uppercase text-slate-500 font-display">Network</span>
+          <select
+            value={chain}
+            onChange={(event) => {
+              const nextChain = event.target.value as TraceableChain;
+              setChain(nextChain);
+              setSeedValue(seedType === "address" ? SAMPLE_WALLETS[nextChain] : SAMPLE_TXS[nextChain]);
+              setError(null);
+            }}
+            className="input"
+            aria-label="Select blockchain network"
+            disabled={isLoading}
+          >
+            {traceableChains.map((network) => (
+              <option key={network} value={network}>
+                {{ bitcoin: "Bitcoin (BTC)", ethereum: "Ethereum (ETH / USDT)", bsc: "BNB Chain (BNB / USDT)", xrpl: "XRP Ledger (XRP)", solana: "Solana (SOL)" }[network]}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="flex border border-slate-200/60 p-1 rounded-xl bg-slate-100/50 w-fit">
           <button
             type="button"
             className="relative cursor-pointer px-4.5 py-2 text-xs font-extrabold tracking-wider uppercase transition-colors duration-200 rounded-lg text-slate-600 focus:outline-none font-display"
             onClick={() => {
               setSeedType("address");
-              setSeedValue(ETH_DEMO_WALLET);
+              setSeedValue(SAMPLE_WALLETS[chain]);
               setError(null);
             }}
           >
@@ -88,7 +119,7 @@ export function SearchForm(): ReactElement {
             className="relative cursor-pointer px-4.5 py-2 text-xs font-extrabold tracking-wider uppercase transition-colors duration-200 rounded-lg text-slate-600 focus:outline-none font-display"
             onClick={() => {
               setSeedType("tx");
-              setSeedValue(ETH_DEMO_TX);
+              setSeedValue(SAMPLE_TXS[chain]);
               setError(null);
             }}
           >
@@ -118,7 +149,7 @@ export function SearchForm(): ReactElement {
                 type="text"
                 value={seedValue}
                 onChange={(e) => setSeedValue(e.target.value)}
-                placeholder={seedType === "address" ? "0x..." : "0x..."}
+                placeholder={seedType === "address" ? "Enter address for selected network" : "Enter transaction ID for selected network"}
                 className="input pl-11 font-mono"
                 spellCheck={false}
                 autoComplete="off"

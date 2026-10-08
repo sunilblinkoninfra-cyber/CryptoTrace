@@ -7,7 +7,7 @@ import { type ReactNode, useEffect, useState } from "react";
 
 export function WalletProviders({ children }: { children: ReactNode }) {
   // Use state to hold adapters, initializing as empty to match SSR and avoid hydration disparities.
-  // We use `any[]` here to gracefully handle Kadena wallet adapter typing without deep imports.
+  // Keep adapter typing isolated from wallet-provider package internals.
   const [adapters, setAdapters] = useState<any[]>([]);
 
   useEffect(() => {

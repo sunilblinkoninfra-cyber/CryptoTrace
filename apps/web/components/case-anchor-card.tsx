@@ -5,7 +5,7 @@ export function CaseAnchorCard({ anchor }: { anchor?: CaseAnchor }) {
   return (
     <Card className="grid gap-5 p-5 bg-gradient-to-br from-white/95 to-slate-50/50 border-slate-200/60 rounded-2xl shadow-sm">
       <div className="flex flex-wrap items-center justify-between border-b border-slate-200/60 pb-3">
-        <span className="pill font-display text-[10px] uppercase tracking-wider">Kadena Anchor</span>
+        <span className="pill font-display text-[10px] uppercase tracking-wider">Public ledger anchor</span>
         <span className="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
           {anchor?.status ?? "not anchored"}
         </span>

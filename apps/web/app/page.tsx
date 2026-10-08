@@ -30,7 +30,7 @@ export default function HomePage(): ReactElement {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-500 opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-500"></span>
               </span>
-              Ethereum • 2-Hop Live Tracking
+              Bitcoin • Ethereum • BNB • XRP • Solana
             </span>
           </motion.div>
 
@@ -52,7 +52,7 @@ export default function HomePage(): ReactElement {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="mx-auto mb-10 max-w-2xl text-base sm:text-lg leading-relaxed text-slate-600 font-medium"
           >
-            KadenaTrace follows wallet transactions, automatically auditing risk patterns like fan-out bursts, rapid hops, and large splits — transforming complex chains into clear, verifiable logs.
+            CryptoTrace follows wallet activity across supported networks and explains suspicious patterns such as rapid hops, fan-out bursts, and cross-chain movement.
           </motion.p>
 
           <div className="mb-8">
@@ -70,7 +70,7 @@ export default function HomePage(): ReactElement {
             </Link>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 font-display">
               <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-glow"></span>
-              Pact Engine Active
+              Multi-network tracing
             </div>
           </motion.div>
         </div>
@@ -105,11 +105,11 @@ export default function HomePage(): ReactElement {
               <InteractiveRiskTicker />
             </BentoCard>
 
-            {/* Cell 3: Pact Ledger Attestation */}
+            {/* Cell 3: Verifiable reports */}
             <BentoCard
               icon={<Shield className="h-6 w-6 text-emerald-600" />}
-              title="Verifiable Disputes"
-              description="Anchors tracing case findings directly onto Kadena's Pact smart contracts to establish auditable security reports."
+              title="Verifiable Investigation Reports"
+              description="Export clear investigation summaries with trace evidence, findings, and reproducible trace hashes."
             >
               <InteractiveLedgerAnchor />
             </BentoCard>

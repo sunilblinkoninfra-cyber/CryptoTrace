@@ -23,7 +23,7 @@ export function AttestationPanel({ fraudCase }: { fraudCase: PublicCaseView }): 
 
   async function submitAttestation() {
     if (!wallet.signer) {
-      setStatus("Connect a Kadena wallet before publishing an attestation.");
+      setStatus("Connect a compatible signing wallet before publishing an attestation.");
       return;
     }
     if (wallet.networkMismatch) {
@@ -117,9 +117,10 @@ export function AttestationPanel({ fraudCase }: { fraudCase: PublicCaseView }): 
           Chain
           <select value={chain} onChange={(event) => setChain(event.target.value as Chain)}>
             <option value="ethereum">Ethereum</option>
-            <option value="bsc">BSC</option>
-            <option value="kadena">Kadena</option>
+            <option value="bsc">BNB Chain</option>
             <option value="bitcoin">Bitcoin</option>
+            <option value="xrpl">XRP Ledger</option>
+            <option value="solana">Solana</option>
           </select>
         </label>
         <label>

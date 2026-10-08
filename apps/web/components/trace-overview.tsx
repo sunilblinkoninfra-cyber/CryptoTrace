@@ -74,7 +74,7 @@ export function TraceOverview({
         traceId: traceId, 
         status: "completed", 
         result: trace, 
-        request: { chain: "ethereum", seedType: "address", seedValue: trace.seed.seedValue },
+        request: { chain: trace.seed.chain, seedType: "address", seedValue: trace.seed.seedValue },
         createdAt: trace.generatedAt,
         updatedAt: trace.generatedAt 
       }),

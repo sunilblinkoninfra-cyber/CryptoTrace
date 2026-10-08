@@ -8,8 +8,8 @@ import { Activity } from "lucide-react";
 import { WalletProviders } from "../components/wallet-providers";
 
 export const metadata: Metadata = {
-  title: "KadenaTrace | Verifiable Blockchain Forensics",
-  description: "Advanced trace analysis and fraud tracking across chains."
+  title: "CryptoTrace | Multi-chain Investigations",
+  description: "Explainable blockchain tracing across Bitcoin, Ethereum, BNB Chain, XRP Ledger, and Solana."
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   <Activity className="h-5.5 w-5.5" />
                 </div>
                 <span className="truncate font-display text-base font-extrabold tracking-wider text-slate-800 sm:text-lg">
-                  KADENATRACE
+                  CryptoTrace
                 </span>
               </Link>
 
