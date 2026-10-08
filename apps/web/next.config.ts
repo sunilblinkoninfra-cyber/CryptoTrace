@@ -21,6 +21,7 @@ if (!process.env.NEXT_PUBLIC_API_URL && existsSync(rootEnvPath)) {
 }
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: resolve(currentDir, "../.."),
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
   },
